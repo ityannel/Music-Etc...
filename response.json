@@ -1,0 +1,1 @@
+{"params":{"seed_genres":["pop","rock","electronic"],"target_valence":0.5,"target_energy":0.6,"target_danceability":0.6,"target_tempo":120,"target_acousticness":0.3,"target_liveness":0.3,"target_instrumentalness":0.2,"target_speechiness":0.2}}

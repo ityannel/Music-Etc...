@@ -1,0 +1,142 @@
+<!-- made by ChatGPT!!!!-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music etc... test</title>
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-hover: #4f46e5;
+      --background: #f9fafb;
+      --card-bg: #ffffff;
+      --border: #e5e7eb;
+      --text: #1f2937;
+      --muted-text: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Inter", "Segoe UI", sans-serif;
+      background: var(--background);
+      margin: 0;
+      padding: 2rem;
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 640px;
+      margin: auto;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      resize: vertical;
+      background-color: #fdfdfd;
+      transition: border-color 0.2s ease;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    button {
+      justify-content:center;
+      margin-top: 1rem;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .response {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #f3f4f6;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+      font-size: 0.95rem;
+      color: var(--muted-text);
+    }
+
+    img {
+      width: 48px;
+    }
+    h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-align: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><img src="logo.png">Music etc... TEST</h1>
+    <textarea id="input" placeholder="Input Your Situation"></textarea>
+    <button onclick="sendContext()">SEND</button>
+    <div class="response" id="response"></div>
+  </div>
+
+  <script>
+    async function sendContext() {
+      const input = document.getElementById("input").value;
+      const resBox = document.getElementById("response");
+      resBox.textContent = "Sending...";
+
+      try {
+        const res = await fetch("http://localhost:3000/parse-music-context", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ description: input }),
+        });
+        const json = await res.json();
+        resBox.textContent = JSON.stringify(json, null, 2);
+      } catch (err) {
+        resBox.textContent = "ERROR!: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
