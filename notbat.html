@@ -8,13 +8,13 @@
   <title>Music etc... test</title>
   <style>
     :root {
-      --primary-color: #6366f1;
-      --primary-hover: #4f46e5;
-      --background: #f9fafb;
-      --card-bg: #ffffff;
-      --border: #e5e7eb;
-      --text: #1f2937;
-      --muted-text: #6b7280;
+      --primary-color: #10b981;
+      --primary-hover: #059669;
+      --background: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --muted-text: #94a3b8;
     }
 
     * {
@@ -22,58 +22,67 @@
     }
 
     body {
-      font-family: "Inter", "Segoe UI", sans-serif;
-      background: var(--background);
+      font-family: 'Fira Code', monospace;
+      background-color: var(--background);
       margin: 0;
       padding: 2rem;
       color: var(--text);
     }
 
     .container {
-      max-width: 640px;
+      max-width: 700px;
       margin: auto;
       background: var(--card-bg);
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      border-radius: 0.75rem;
+      box-shadow: 0 0 0 1px var(--border);
       padding: 2rem;
-      transition: all 0.3s ease;
     }
 
     h1 {
-      text-align: center;
-      font-size: 1.75rem;
-      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
       color: var(--primary-color);
+      margin-bottom: 2rem;
+    }
+
+    img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
     }
 
     textarea {
       width: 100%;
-      height: 120px;
+      height: 140px;
       padding: 1rem;
-      border-radius: 12px;
+      border-radius: 0.5rem;
       border: 1px solid var(--border);
       font-size: 1rem;
       resize: vertical;
-      background-color: #fdfdfd;
-      transition: border-color 0.2s ease;
+      background-color: #0f172a;
+      color: var(--text);
     }
 
     textarea:focus {
       outline: none;
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4);
     }
 
     button {
-      justify-content:center;
-      margin-top: 1rem;
+      display: block;
+      margin: 1.5rem auto 0;
       padding: 0.75rem 2rem;
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: bold;
       background-color: var(--primary-color);
-      color: white;
+      color: #ffffff;
       border: none;
-      border-radius: 12px;
+      border-radius: 0.5rem;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
@@ -85,58 +94,73 @@
     .response {
       margin-top: 2rem;
       padding: 1rem;
-      background-color: #f3f4f6;
-      border-radius: 12px;
+      background-color: #1e293b;
+      border-left: 4px solid var(--primary-color);
+      border-radius: 0.5rem;
       white-space: pre-wrap;
-      font-family: Consolas, monospace;
+      font-family: 'Fira Code', monospace;
       font-size: 0.95rem;
       color: var(--muted-text);
+      line-height: 1.5;
     }
 
-    img {
-      width: 48px;
-    }
-    h1 {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      text-align: center;
-      font-size: 1.75rem;
-      margin-bottom: 1.5rem;
-      color: var(--primary-color);
+    .line {
+      opacity: 0;
+      transition: opacity 0.4s ease-in;
     }
 
+    .line.visible {
+      opacity: 1;
+    }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
-    <h1><img src="logo.png">Music etc... TEST</h1>
-    <textarea id="input" placeholder="Input Your Situation"></textarea>
-    <button onclick="sendContext()">SEND</button>
+    <h1>Music etc... TEST</h1>
+    <textarea id="input" placeholder="// Describe your situation here..."></textarea>
+    <button onclick="sendContext()">RUN</button>
     <div class="response" id="response"></div>
   </div>
 
   <script>
     async function sendContext() {
-      const input = document.getElementById("input").value;
-      const resBox = document.getElementById("response");
-      resBox.textContent = "Sending...";
+  const input = document.getElementById("input").value;
+  const resBox = document.getElementById("response");
+  resBox.innerHTML = "<span style='color:#22d3ee;'>[RUNNING]</span> Waiting for response...\n";
 
-      try {
-        const res = await fetch("http://localhost:3000/parse-music-context", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ description: input }),
+  try {
+    const res = await fetch("http://localhost:3000/parse-music-context", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ description: input }),
+    });
+
+    const json = await res.json();
+    const lines = JSON.stringify(json, null, 2).split("\n");
+    resBox.textContent = "";
+
+    lines.forEach((line, i) => {
+      const span = document.createElement("div");
+      span.textContent = line;
+      span.style.opacity = 0;
+      span.style.transition = "opacity 0.4s ease";
+      span.style.transform = "translateY(4px)";
+      setTimeout(() => {
+        resBox.appendChild(span);
+        requestAnimationFrame(() => {
+          span.style.opacity = 1;
+          span.style.transform = "translateY(0)";
         });
-        const json = await res.json();
-        resBox.textContent = JSON.stringify(json, null, 2);
-      } catch (err) {
-        resBox.textContent = "ERROR!: " + err.message;
-      }
-    }
+      }, 80 * i + Math.random() * 40); // ランダム感あるズレ
+    });
+
+  } catch (err) {
+    resBox.textContent = "// ERROR: " + err.message;
+  }
+}
   </script>
 </body>
 </html>
