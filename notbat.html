@@ -4,16 +4,161 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Music etc... test</title>
+  <style>
+    :root {
+      --primary-color: #10b981;
+      --primary-hover: #059669;
+      --background: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --muted-text: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Fira Code', monospace;
+      background-color: var(--background);
+      margin: 0;
+      padding: 2rem;
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: var(--card-bg);
+      border-radius: 0.75rem;
+      box-shadow: 0 0 0 1px var(--border);
+      padding: 2rem;
+    }
+
+    h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 2rem;
+    }
+
+    img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      resize: vertical;
+      background-color: #0f172a;
+      color: var(--text);
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4);
+    }
+
+    button {
+      display: block;
+      margin: 1.5rem auto 0;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: bold;
+      background-color: var(--primary-color);
+      color: #ffffff;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .response {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #1e293b;
+      border-left: 4px solid var(--primary-color);
+      border-radius: 0.5rem;
+      white-space: pre-wrap;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      color: var(--muted-text);
+      line-height: 1.5;
+    }
+
+    .line {
+      opacity: 0;
+      transition: opacity 0.4s ease-in;
+    }
+
+    .line.visible {
+      opacity: 1;
+    }
+  </style>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
-  <link href="notbatstyle.css" rel="stylesheet">
 </head>
 <body>
   <div class="container">
-    <h1><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981' width='40px' height='40px'%3E%3Cpath d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6zm-2 16c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z'/%3E%3C/svg%3E" alt="Music Icon">Music etc... TEST</h1>
-    <textarea id="input" placeholder="Describe your situation."></textarea>
-    <button onclick="sendContext()">SEND</button>
+    <h1>Music etc... TEST</h1>
+    <textarea id="input" placeholder="// Describe your situation here..."></textarea>
+    <button onclick="sendContext()">RUN</button>
     <div class="response" id="response"></div>
   </div>
-  <script src="notbatscript.js"></script>
+
+  <script>
+    async function sendContext() {
+  const input = document.getElementById("input").value;
+  const resBox = document.getElementById("response");
+  resBox.innerHTML = "<span style='color:#22d3ee;'>[RUNNING]</span> Waiting for response...\n";
+
+  try {
+    const res = await fetch("http://localhost:3000/parse-music-context", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ description: input }),
+    });
+
+    const json = await res.json();
+    const lines = JSON.stringify(json, null, 2).split("\n");
+    resBox.textContent = "";
+
+    lines.forEach((line, i) => {
+      const span = document.createElement("div");
+      span.textContent = line;
+      span.style.opacity = 0;
+      span.style.transition = "opacity 0.4s ease";
+      span.style.transform = "translateY(4px)";
+      setTimeout(() => {
+        resBox.appendChild(span);
+        requestAnimationFrame(() => {
+          span.style.opacity = 1;
+          span.style.transform = "translateY(0)";
+        });
+      }, 80 * i + Math.random() * 40); // ランダム感あるズレ
+    });
+
+  } catch (err) {
+    resBox.textContent = "// ERROR: " + err.message;
+  }
+}
+  </script>
 </body>
 </html>
