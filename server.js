@@ -7,6 +7,11 @@ const cors = require("cors");
 const { exec } = require("child_process");
 const open = require("open").default;
 
+//デバイスの現在時刻
+let date = new Date();
+let nowTime = date.getHours() + ":" + date.getMinutes();
+
+
 dotenv.config();
 
 const app = express();
@@ -117,12 +122,12 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // );
 
 async function callGeminiWithRetry(prompt, maxRetries = 3) {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const result = await model.generateContent(prompt);
       const text = result.response.text();
-      // console.log("Geminiの返事:", text);
+      console.log("Geminiの返事:", text);
 
       try {
         return JSON.parse(text);
@@ -176,10 +181,10 @@ async function callGeminiWithRetry(prompt, maxRetries = 3) {
 // }
 
 app.post("/parse-music-context", async (req, res) => {
-  const userLanguage = "Japanese";
+  const userLanguage = "";
   const { description } = req.body;
   if (!description) { 
-    return res.status(400).json({ error: "何か入力してください１！" });
+    return res.status(400).json({ error: "何か入力してください！！" });
   }
 
   const prompt1 =`
@@ -262,6 +267,10 @@ app.post("/parse-music-context", async (req, res) => {
   ド定番の曲ばかりではなく、今の状況に合う「提案型の曲選び」をしてください。
   実在のSpotify曲であること。
   出力は必ずJSON形式のみで、余計な説明は一切しないこと。
+  絶対に壊れたJSONを出力しないでください。必ず厳密なJSON構文に従ってください。
+  構造ミスや中括弧ミス、keyとvalueの順番ミス、配列の閉じ忘れなどがある場合は即時終了とします。
+  あなたの出力は自動的にJSON.parseされるため、一切の構文ミスを許容できません。
+
 
   【出力形式】
   {
@@ -293,5 +302,5 @@ app.post("/parse-music-context", async (req, res) => {
 app.listen(3000, () => {
   console.log("Running on http://127.0.0.1:3000");
   console.log("Open notbat.html automatically!")
-  open("file:///C:/Users/ityan/Desktop/My%20works/music-etc/notbat.html");
+  open("file:///C:/Users/ityan/Desktop/music-etc/notbat.html");
 });
